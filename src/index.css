@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme tokens. A paper-like reading site: warm off-white page, ink text, and the blue of the
+   JGM logo as the only colour. Things sit flat on the page; shadow is kept for what truly
+   floats (the pinned reader bar, PDF pages). */
+:root {
+  color-scheme: light;
+  --canvas: #f7f4ee;
+  --surface-1: #fffdf9;
+  --surface-2: #fffdf9;
+  --surface-3: #ece7dd;
+  --well: #eeeae1;
+  --text: #1c2330;
+  --text-2: #4d5564;
+  --text-3: #8b8f98;
+  --accent: #1f62ad;
+  --accent-hover: #174d8a;
+  --accent-soft: rgba(31, 98, 173, 0.1);
+  --accent-ring: rgba(31, 98, 173, 0.3);
+  --on-accent: #ffffff;
+  --danger: #b93a32;
+  --danger-soft: rgba(185, 58, 50, 0.1);
+  --glass: rgba(255, 253, 249, 0.74);
+  --logo-filter: none;
+  --shadow-1: 0 1px 2px rgba(40, 34, 22, 0.05), 0 6px 16px -10px rgba(40, 34, 22, 0.18);
+  --shadow-2: 0 1px 3px rgba(40, 34, 22, 0.08), 0 14px 32px -16px rgba(40, 34, 22, 0.3);
+  --shadow-float: 0 2px 6px rgba(40, 34, 22, 0.08), 0 24px 48px -20px rgba(40, 34, 22, 0.35);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #14161a;
+  --surface-1: #1d2026;
+  --surface-2: #1d2026;
+  --surface-3: #272b33;
+  --well: #0e1013;
+  --text: #ece8e1;
+  --text-2: #b3aea5;
+  --text-3: #7f7c76;
+  --accent: #86b7ec;
+  --accent-hover: #a5cbf3;
+  --accent-soft: rgba(134, 183, 236, 0.14);
+  --accent-ring: rgba(134, 183, 236, 0.35);
+  --on-accent: #10151c;
+  --danger: #ef7d74;
+  --danger-soft: rgba(239, 125, 116, 0.14);
+  --glass: rgba(29, 32, 38, 0.78);
+  --logo-filter: brightness(1.3) saturate(1.05);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px -12px rgba(0, 0, 0, 0.6);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 36px -16px rgba(0, 0, 0, 0.8);
+  --shadow-float: 0 4px 10px rgba(0, 0, 0, 0.35), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    min-height: 100vh;
+  }
+  ::selection {
+    background: var(--accent-ring);
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+}
+
+@layer components {
+  .surface {
+    @apply rounded-xl bg-s1 shadow-1;
+  }
+  .lift {
+    @apply transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-2;
+  }
+  .well {
+    @apply rounded-lg bg-well transition-shadow duration-200;
+  }
+  .well:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+  .field {
+    @apply w-full bg-transparent px-4 py-3 text-[15px] text-ink outline-none placeholder:text-ink3;
+  }
+  .field:focus-visible {
+    box-shadow: none;
+  }
+  .btn {
+    @apply inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-accent hover:bg-accent-hover;
+    color: var(--on-accent);
+  }
+  .btn-soft {
+    @apply btn bg-s3 text-ink hover:text-accent;
+  }
+  .btn-ghost {
+    @apply btn text-ink2 hover:bg-s3 hover:text-ink;
+  }
+  /* Plain text controls for the public pages: filters, tags, small actions. */
+  .textlink {
+    @apply shrink-0 whitespace-nowrap rounded text-ink3 underline-offset-[6px] transition-colors duration-150 hover:text-ink;
+  }
+  .textlink-active {
+    @apply text-ink underline decoration-accent decoration-2 hover:text-ink;
+  }
+  /* Pills are kept for the admin panel (status, tag chips). */
+  .pill {
+    @apply inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium text-ink2 transition duration-150 hover:bg-s3 hover:text-ink;
+  }
+  .pill-active {
+    @apply bg-accent-soft text-accent hover:bg-accent-soft hover:text-accent;
+  }
+  .logo {
+    filter: var(--logo-filter);
+  }
+  .label {
+    @apply mb-2 block text-[13px] font-semibold text-ink2;
+  }
+  .skeleton {
+    @apply animate-pulse rounded-md bg-s3;
+  }
+}
+
+@layer utilities {
+  /* Soft fade at both ends of a horizontally scrolling row. */
+  .fade-x {
+    mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
