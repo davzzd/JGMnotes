@@ -29,7 +29,12 @@ function withUrls(note) {
 }
 
 export async function listNotes({ includeDrafts = false } = {}) {
-  let query = sb.from('sermon_notes').select('*, files:note_files(*)').order('sermon_date', { ascending: false });
+  // Newest sermon first; two notes for the same day show the more recently added one first.
+  let query = sb
+    .from('sermon_notes')
+    .select('*, files:note_files(*)')
+    .order('sermon_date', { ascending: false })
+    .order('created_at', { ascending: false });
   if (!includeDrafts) query = query.eq('published', true);
   return check(await query).map(withUrls);
 }

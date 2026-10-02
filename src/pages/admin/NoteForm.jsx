@@ -101,7 +101,7 @@ function Form({ note, allTags }) {
               <input id="title" required value={form.title} onChange={update('title')} className="field" placeholder="Sermon title" />
             </div>
           </Field>
-          <Field id="date" label="Date">
+          <Field id="date" label="Date" hint={form.sermon_date > today() ? 'In the future' : ''}>
             <div className="well">
               <input id="date" type="date" required value={form.sermon_date} onChange={update('sermon_date')} className="field" />
             </div>
