@@ -58,6 +58,17 @@ function Form({ note, allTags }) {
       ...files.map((file) => ({ key: `new-${++fileKey}`, file, label: '', file_name: file.name, size_bytes: file.size })),
     ]);
 
+  const moveFile = (key, step) => {
+    setItems((list) => {
+      const from = list.indexOf(list.find((i) => i.key === key));
+      const to = from + step;
+      if (to < 0 || to >= list.length) return list;
+      const next = [...list];
+      [next[from], next[to]] = [next[to], next[from]];
+      return next;
+    });
+  };
+
   const removeFile = (key) => {
     const item = items.find((i) => i.key === key);
     if (item.saved) setRemoved((r) => [...r, item.saved]);
@@ -74,8 +85,9 @@ function Form({ note, allTags }) {
       await saveNote(
         { ...form, id: note?.id, cover_path: note?.cover_path, cover_url: note?.cover_url, title: form.title.trim() },
         {
-          keepFiles: items.filter((i) => i.saved).map((i) => ({ ...i.saved, label: cleanLabel(i.label) })),
-          addFiles: fresh.map((i) => ({ file: i.file, label: cleanLabel(i.label) })),
+          // The list order in the form is the order readers see.
+          keepFiles: items.filter((i) => i.saved).map((i) => ({ ...i.saved, label: cleanLabel(i.label), position: items.indexOf(i) })),
+          addFiles: fresh.map((i) => ({ file: i.file, label: cleanLabel(i.label), position: items.indexOf(i) })),
           removeFiles: removed,
           cover,
         },
@@ -167,6 +179,7 @@ function Form({ note, allTags }) {
             busy={saving}
             onAdd={addFiles}
             onRemove={removeFile}
+            onMove={moveFile}
             onLabel={(key, label) => setItems((list) => list.map((i) => (i.key === key ? { ...i, label } : i)))}
           />
         </div>

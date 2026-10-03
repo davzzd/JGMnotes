@@ -18,7 +18,7 @@ function withUrls(note) {
     ...note,
     cover_url: note.cover_path ? publicUrl(note.cover_path) : null,
     files: (note.files || [])
-      .sort((a, b) => a.created_at.localeCompare(b.created_at))
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0) || a.created_at.localeCompare(b.created_at))
       .map((f) => ({
         ...f,
         // viewUrl serves the file inline for the reader; url forces a download with the original name.
@@ -96,7 +96,7 @@ export async function saveNote(note, { keepFiles = [], addFiles = [], removeFile
   }
 
   for (const f of keepFiles) {
-    check(await sb.from('note_files').update({ label: f.label || null }).eq('id', f.id));
+    check(await sb.from('note_files').update({ label: f.label || null, position: f.position ?? 0 }).eq('id', f.id));
   }
 
   if (removeFiles.length) {
@@ -104,7 +104,7 @@ export async function saveNote(note, { keepFiles = [], addFiles = [], removeFile
     check(await sb.from('note_files').delete().in('id', removeFiles.map((f) => f.id)));
   }
 
-  for (const [i, { file, label }] of addFiles.entries()) {
+  for (const [i, { file, label, position }] of addFiles.entries()) {
     // Storage keys must be plain ASCII; the original name is kept in the row for downloads.
     const ext = (file.name.match(/\.([A-Za-z0-9]+)$/)?.[1] || 'pdf').toLowerCase();
     const path = `${year}/${id}/${crypto.randomUUID()}.${ext}`;
@@ -116,6 +116,7 @@ export async function saveNote(note, { keepFiles = [], addFiles = [], removeFile
         storage_path: path,
         file_name: file.name,
         size_bytes: file.size,
+        position: position ?? 0,
       }),
     );
     onProgress?.(i, 1);

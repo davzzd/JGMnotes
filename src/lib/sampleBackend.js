@@ -61,16 +61,16 @@ export async function saveNote(input, { keepFiles = [], addFiles = [], removeFil
   if (cover?.file) cover_url = URL.createObjectURL(cover.file);
   else if (cover?.remove) cover_url = null;
   const added = [];
-  for (const [i, { file: f, label }] of addFiles.entries()) {
+  for (const [i, { file: f, label, position }] of addFiles.entries()) {
     for (const fraction of [0.3, 0.7, 1]) {
       await new Promise((r) => setTimeout(r, 200));
       onProgress?.(i, fraction);
     }
     const url = URL.createObjectURL(f);
-    added.push({ ...file(label, f.name, f.size), url, viewUrl: url });
+    added.push({ ...file(label, f.name, f.size), url, viewUrl: url, position: position ?? 0 });
   }
   const removed = new Set(removeFiles.map((f) => f.id));
-  const files = [...keepFiles.filter((f) => !removed.has(f.id)), ...added];
+  const files = [...keepFiles.filter((f) => !removed.has(f.id)), ...added].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   notes = [...notes.filter((n) => n.id !== id), { ...input, id, files, cover_url }];
   return id;
 }

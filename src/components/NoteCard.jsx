@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Cover from './Cover';
 import { formatDate } from '../lib/filters';
+import Languages from './Languages';
 
 // A compact row on phones (picture left), a full card with the picture on top from `sm` up.
 export default function NoteCard({ note, onTag, activeTag }) {
@@ -28,6 +29,8 @@ export default function NoteCard({ note, onTag, activeTag }) {
         {note.main_verse && (
           <p className="truncate font-serif text-[15px] italic text-ink2 sm:mt-0.5 sm:text-[17px]">{note.main_verse}</p>
         )}
+
+        <Languages note={note} className="mt-2" />
 
         {note.description && (
           <p className="mt-2.5 hidden text-[15px] leading-relaxed text-ink2 sm:line-clamp-2">{note.description}</p>

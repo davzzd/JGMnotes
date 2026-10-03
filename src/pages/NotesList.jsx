@@ -4,6 +4,7 @@ import { ArrowRight, Search, X } from 'lucide-react';
 import Cover from '../components/Cover';
 import NoteCard from '../components/NoteCard';
 import { useNotes } from '../lib/api';
+import Languages from '../components/Languages';
 import { MONTHS, applyFilters, facets, formatDate, readFilters } from '../lib/filters';
 
 const MAX_TAGS = 12;
@@ -32,6 +33,7 @@ function Featured({ note }) {
           {note.title}
         </h2>
         {note.main_verse && <p className="mt-2 font-serif text-xl italic text-ink2">{note.main_verse}</p>}
+        <Languages note={note} className="mt-3" />
         {note.description && <p className="mt-4 line-clamp-3 leading-relaxed text-ink2">{note.description}</p>}
         <span className="btn-primary mt-6 self-start">
           {note.files.length ? 'Read/Download Sermon Notes' : 'Open'}
@@ -45,7 +47,7 @@ function Featured({ note }) {
 export default function NotesList() {
   const { notes, loading, error } = useNotes();
   const [params, setParams] = useSearchParams();
-  const { y, m, tag } = readFilters(params);
+  const { y, m, tag, lang } = readFilters(params);
   // The box is driven by local state so fast typing never waits on the router; the URL follows.
   const [q, setQ] = useState(() => readFilters(params).q);
 
@@ -73,9 +75,9 @@ export default function NotesList() {
     setParams({}, { replace: true });
   };
 
-  const { years, months, tags } = useMemo(() => facets(notes, y), [notes, y]);
-  const matches = useMemo(() => applyFilters(notes, { q, y, m, tag }), [notes, q, y, m, tag]);
-  const filtered = Boolean(q || y || tag);
+  const { years, months, tags, languages } = useMemo(() => facets(notes, y), [notes, y]);
+  const matches = useMemo(() => applyFilters(notes, { q, y, m, tag, lang }), [notes, q, y, m, tag, lang]);
+  const filtered = Boolean(q || y || tag || lang);
   // With no filters on, the newest note is shown large and left out of the grid.
   const featured = !filtered ? matches[0] : null;
   const rest = featured ? matches.slice(1) : matches;
@@ -134,6 +136,19 @@ export default function NotesList() {
               </div>
             )}
 
+            {languages.length > 0 && (
+              <div className={ROW}>
+                <Choice active={!lang} onClick={() => set({ lang: '' })}>
+                  All languages
+                </Choice>
+                {languages.map((l) => (
+                  <Choice key={l} active={l === lang} onClick={() => set({ lang: l === lang ? '' : l })}>
+                    {l}
+                  </Choice>
+                ))}
+              </div>
+            )}
+
             {shownTags.length > 0 && (
               <div className={`${ROW} !gap-x-4 font-normal`}>
                 {shownTags.map((t) => (
@@ -186,6 +201,11 @@ export default function NotesList() {
                     {m ? `${MONTHS[m - 1]} ` : ''}
                     {y}
                   </span>
+                </>
+              )}
+              {lang && (
+                <>
+                  {' '}in <span className="font-semibold text-ink">{lang}</span>
                 </>
               )}
               {q && (

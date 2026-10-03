@@ -18,22 +18,31 @@ export function isPdf(file) {
   return /\.pdf$/i.test(file.file_name);
 }
 
+export const LANGUAGES = ['English', 'Malayalam'];
+
+// Languages a note's files are labelled with, in the fixed order above.
+export function languagesOf(note) {
+  return LANGUAGES.filter((l) => note.files.some((f) => f.label === l));
+}
+
 export function readFilters(params) {
   return {
     q: params.get('q') || '',
+    lang: LANGUAGES.includes(params.get('lang')) ? params.get('lang') : '',
     y: Number(params.get('y')) || null,
     m: Number(params.get('m')) || null,
     tag: params.get('tag') || '',
   };
 }
 
-export function applyFilters(notes, { q, y, m, tag }) {
+export function applyFilters(notes, { q, y, m, tag, lang }) {
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
   return notes.filter((n) => {
     const d = parseDate(n.sermon_date);
     if (y && d.y !== y) return false;
     if (y && m && d.m !== m) return false;
     if (tag && !n.tags.includes(tag)) return false;
+    if (lang && !languagesOf(n).includes(lang)) return false;
     if (!words.length) return true;
     const hay = [n.title, n.main_verse, n.description, n.tags.join(' ')].join(' ').toLowerCase();
     return words.every((w) => hay.includes(w));
@@ -45,7 +54,9 @@ export function facets(notes, year) {
   const years = new Set();
   const months = new Set();
   const tagCount = new Map();
+  const languages = new Set();
   for (const n of notes) {
+    for (const l of languagesOf(n)) languages.add(l);
     const d = parseDate(n.sermon_date);
     years.add(d.y);
     if (d.y === year) months.add(d.m);
@@ -54,6 +65,7 @@ export function facets(notes, year) {
   return {
     years: [...years].sort((a, b) => b - a),
     months: [...months].sort((a, b) => a - b),
+    languages: LANGUAGES.filter((l) => languages.has(l)),
     tags: [...tagCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => t),
   };
 }

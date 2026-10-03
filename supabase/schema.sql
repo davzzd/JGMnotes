@@ -23,6 +23,7 @@ create table public.note_files (
   storage_path text not null,
   file_name text not null,
   size_bytes bigint,
+  position integer not null default 0,
   created_at timestamptz not null default now()
 );
 

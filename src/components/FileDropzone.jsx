@@ -1,13 +1,12 @@
 import { useRef, useState } from 'react';
-import { FileText, Trash2, UploadCloud } from 'lucide-react';
-import { formatSize } from '../lib/filters';
+import { ChevronDown, ChevronUp, FileText, Trash2, UploadCloud } from 'lucide-react';
+import { LANGUAGES, formatSize } from '../lib/filters';
 
-const LANGUAGES = ['English', 'Malayalam'];
 const MAX_BYTES = 25 * 1024 * 1024;
 const ALLOWED = /\.(pdf|docx?|pptx?)$/i;
 
 // items: [{ key, label, file_name, size_bytes, progress? }]
-export default function FileDropzone({ items, onAdd, onLabel, onRemove, busy }) {
+export default function FileDropzone({ items, onAdd, onLabel, onRemove, onMove, busy }) {
   const input = useRef(null);
   const [over, setOver] = useState(false);
   const [rejected, setRejected] = useState([]);
@@ -66,8 +65,30 @@ export default function FileDropzone({ items, onAdd, onLabel, onRemove, busy }) 
         </p>
       ))}
 
-      {items.map((item) => (
+      {items.length > 1 && <p className="text-xs text-ink3">Files are shown to readers in this order.</p>}
+
+      {items.map((item, index) => (
         <div key={item.key} className="relative flex items-center gap-3 overflow-hidden rounded-xl bg-s3 p-3">
+          <div className="flex shrink-0 flex-col">
+            <button
+              type="button"
+              disabled={busy || index === 0}
+              onClick={() => onMove(item.key, -1)}
+              className="btn-ghost !p-1 disabled:opacity-25"
+              aria-label={`Move ${item.file_name} up`}
+            >
+              <ChevronUp size={16} />
+            </button>
+            <button
+              type="button"
+              disabled={busy || index === items.length - 1}
+              onClick={() => onMove(item.key, 1)}
+              className="btn-ghost !p-1 disabled:opacity-25"
+              aria-label={`Move ${item.file_name} down`}
+            >
+              <ChevronDown size={16} />
+            </button>
+          </div>
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
             <FileText size={18} />
           </span>
