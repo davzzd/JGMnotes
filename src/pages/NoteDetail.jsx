@@ -80,7 +80,12 @@ export default function NoteDetail() {
   // Video, summary and downloads. Beside the reader on wide screens, below it on phones.
   const about = (
     <div className="space-y-8">
-      {videoId && <YouTubeEmbed id={videoId} title={note.title} />}
+      {videoId && (
+        <div>
+          <h2 className={HEADING}>Watch on YouTube</h2>
+          <YouTubeEmbed id={videoId} title={note.title} />
+        </div>
+      )}
 
       {note.description && (
         <div>

@@ -33,7 +33,7 @@ function Featured({ note }) {
         {note.main_verse && <p className="mt-2 font-serif text-xl italic text-ink2">{note.main_verse}</p>}
         {note.description && <p className="mt-4 line-clamp-3 leading-relaxed text-ink2">{note.description}</p>}
         <span className="btn-primary mt-6 self-start">
-          {note.files.length ? 'Read the notes' : 'Open'}
+          {note.files.length ? 'Read/Download Sermon Notes' : 'Open'}
           <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
         </span>
       </div>

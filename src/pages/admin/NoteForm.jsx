@@ -26,6 +26,9 @@ function Field({ id, label, hint, children }) {
 
 let fileKey = 0;
 
+// 'Other' is the picker's placeholder for a custom label that was never typed.
+const cleanLabel = (label) => (label.trim() === 'Other' ? '' : label.trim());
+
 function Form({ note, allTags }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -71,8 +74,8 @@ function Form({ note, allTags }) {
       await saveNote(
         { ...form, id: note?.id, cover_path: note?.cover_path, cover_url: note?.cover_url, title: form.title.trim() },
         {
-          keepFiles: items.filter((i) => i.saved).map((i) => ({ ...i.saved, label: i.label.trim() })),
-          addFiles: fresh.map((i) => ({ file: i.file, label: i.label.trim() })),
+          keepFiles: items.filter((i) => i.saved).map((i) => ({ ...i.saved, label: cleanLabel(i.label) })),
+          addFiles: fresh.map((i) => ({ file: i.file, label: cleanLabel(i.label) })),
           removeFiles: removed,
           cover,
         },

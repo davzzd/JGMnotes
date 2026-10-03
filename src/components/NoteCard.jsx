@@ -46,7 +46,7 @@ export default function NoteCard({ note, onTag, activeTag }) {
             ))}
           </p>
           <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-accent">
-            {note.files.length ? 'Read notes' : 'Open'}
+            {note.files.length ? 'Read/Download Sermon Notes' : 'Open'}
             <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-1" />
           </span>
         </div>

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { FileText, Trash2, UploadCloud } from 'lucide-react';
 import { formatSize } from '../lib/filters';
 
+const LANGUAGES = ['English', 'Malayalam'];
 const MAX_BYTES = 25 * 1024 * 1024;
 const ALLOWED = /\.(pdf|docx?|pptx?)$/i;
 
@@ -77,15 +78,36 @@ export default function FileDropzone({ items, onAdd, onLabel, onRemove, busy }) 
               {item.progress != null && ` · ${item.progress >= 1 ? 'Uploaded' : `Uploading ${Math.round(item.progress * 100)}%`}`}
             </p>
           </div>
-          <div className="well w-32 sm:w-40">
-            <input
-              value={item.label}
-              onChange={(e) => onLabel(item.key, e.target.value)}
-              placeholder="Label (e.g. English)"
-              aria-label={`Label for ${item.file_name}`}
-              disabled={busy}
-              className="field !px-3 !py-2 !text-sm"
-            />
+          <div className="flex w-36 flex-col gap-1.5 sm:w-44">
+            <div className="well">
+              <select
+                value={LANGUAGES.includes(item.label) ? item.label : item.label ? 'other' : ''}
+                onChange={(e) => onLabel(item.key, e.target.value === 'other' ? 'Other' : e.target.value)}
+                aria-label={`Language of ${item.file_name}`}
+                disabled={busy}
+                className="field !px-3 !py-2 !text-sm"
+              >
+                <option value="">Language…</option>
+                {LANGUAGES.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+                <option value="other">Other</option>
+              </select>
+            </div>
+            {item.label && !LANGUAGES.includes(item.label) && (
+              <div className="well">
+                <input
+                  value={item.label === 'Other' ? '' : item.label}
+                  onChange={(e) => onLabel(item.key, e.target.value || 'Other')}
+                  placeholder="Custom label"
+                  aria-label={`Label for ${item.file_name}`}
+                  disabled={busy}
+                  className="field !px-3 !py-2 !text-sm"
+                />
+              </div>
+            )}
           </div>
           <button
             type="button"
