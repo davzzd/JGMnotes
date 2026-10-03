@@ -24,7 +24,8 @@ const GRID = 'grid gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3';
 function Featured({ note }) {
   return (
     <Link to={`/notes/${note.id}`} className="surface lift group mb-3 grid overflow-hidden sm:mb-6 md:grid-cols-[1.45fr_1fr]">
-      <Cover note={note} large className="aspect-video md:h-full" />
+      {/* Side by side the picture must take its size from the column, not from 16:9, or it spills over the text. */}
+      <Cover note={note} large className="aspect-video md:aspect-auto md:h-full md:min-h-[320px]" />
       <div className="flex flex-col justify-center p-5 sm:p-8 lg:p-10">
         <p className="text-sm font-semibold text-accent">Latest message · {formatDate(note.sermon_date)}</p>
         <h2 className="mt-2 font-serif text-[30px] font-medium leading-[1.1] tracking-tight text-ink transition-colors group-hover:text-accent sm:text-[40px]">
