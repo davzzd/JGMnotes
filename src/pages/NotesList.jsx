@@ -1,43 +1,74 @@
-import { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Search, X } from 'lucide-react';
-import Cover from '../components/Cover';
-import NoteCard from '../components/NoteCard';
-import { useNotes } from '../lib/api';
-import Languages from '../components/Languages';
-import { MONTHS, applyFilters, facets, formatDate, readFilters } from '../lib/filters';
+import { useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, Search, X } from "lucide-react";
+import Cover from "../components/Cover";
+import NoteCard from "../components/NoteCard";
+import Segmented from "../components/Segmented";
+import { useNotes } from "../lib/api";
+import Languages from "../components/Languages";
+import {
+  MONTHS,
+  applyFilters,
+  facets,
+  formatDate,
+  readFilters,
+} from "../lib/filters";
 
 const MAX_TAGS = 12;
 // A line of plain text choices; scrolls sideways on phones rather than wrapping.
-const ROW = 'fade-x no-scrollbar -mx-4 flex gap-x-5 gap-y-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0 sm:[mask-image:none]';
+const ROW =
+  "fade-x no-scrollbar -mx-4 flex gap-x-5 gap-y-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0 sm:[mask-image:none]";
 
 function Choice({ active, children, ...props }) {
   return (
-    <button className={`textlink py-1 ${active ? 'textlink-active' : ''}`} {...props}>
+    <button
+      className={`textlink py-1 ${active ? "textlink-active" : ""}`}
+      {...props}
+    >
       {children}
     </button>
   );
 }
 
-const GRID = 'grid gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3';
+const GRID = "grid gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3";
 
 // The newest note, shown large above the grid.
 function Featured({ note }) {
   return (
-    <Link to={`/notes/${note.id}`} className="surface lift group mb-3 grid overflow-hidden sm:mb-6 md:grid-cols-[1.45fr_1fr]">
+    <Link
+      to={`/notes/${note.id}`}
+      className="surface lift group mb-3 grid overflow-hidden sm:mb-6 md:grid-cols-[1.45fr_1fr]"
+    >
       {/* Side by side the picture must take its size from the column, not from 16:9, or it spills over the text. */}
-      <Cover note={note} large className="aspect-video md:aspect-auto md:h-full md:min-h-[320px]" />
+      <Cover
+        note={note}
+        large
+        className="aspect-video md:aspect-auto md:h-full md:min-h-[320px]"
+      />
       <div className="flex flex-col justify-center p-5 sm:p-8 lg:p-10">
-        <p className="text-sm font-semibold text-accent">Latest message · {formatDate(note.sermon_date)}</p>
+        <p className="text-sm font-semibold text-accent">
+          Latest message · {formatDate(note.sermon_date)}
+        </p>
         <h2 className="mt-2 font-serif text-[30px] font-medium leading-[1.1] tracking-tight text-ink transition-colors group-hover:text-accent sm:text-[40px]">
           {note.title}
         </h2>
-        {note.main_verse && <p className="mt-2 font-serif text-xl italic text-ink2">{note.main_verse}</p>}
+        {note.main_verse && (
+          <p className="mt-2 font-serif text-xl italic text-ink2">
+            {note.main_verse}
+          </p>
+        )}
         <Languages note={note} className="mt-3" />
-        {note.description && <p className="mt-4 line-clamp-3 leading-relaxed text-ink2">{note.description}</p>}
+        {note.description && (
+          <p className="mt-4 line-clamp-3 leading-relaxed text-ink2">
+            {note.description}
+          </p>
+        )}
         <span className="btn-primary mt-6 self-start">
-          {note.files.length ? 'Read/Download Sermon Notes' : 'Open'}
-          <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+          {note.files.length ? "Read/Download Sermon Notes" : "Open"}
+          <ArrowRight
+            size={16}
+            className="transition-transform duration-200 group-hover:translate-x-1"
+          />
         </span>
       </div>
     </Link>
@@ -71,12 +102,18 @@ export default function NotesList() {
   };
 
   const clearAll = () => {
-    setQ('');
+    setQ("");
     setParams({}, { replace: true });
   };
 
-  const { years, months, tags, languages } = useMemo(() => facets(notes, y), [notes, y]);
-  const matches = useMemo(() => applyFilters(notes, { q, y, m, tag, lang }), [notes, q, y, m, tag, lang]);
+  const { years, months, tags, languages } = useMemo(
+    () => facets(notes, y),
+    [notes, y],
+  );
+  const matches = useMemo(
+    () => applyFilters(notes, { q, y, m, tag, lang }),
+    [notes, q, y, m, tag, lang],
+  );
   const filtered = Boolean(q || y || tag || lang);
   // With no filters on, the newest note is shown large and left out of the grid.
   const featured = !filtered ? matches[0] : null;
@@ -93,31 +130,53 @@ export default function NotesList() {
           Sermon Notes
         </h1>
 
-        <label className="well mt-7 flex max-w-xl items-center gap-3 pl-4 pr-2 sm:mt-10">
-          <Search size={18} className="shrink-0 text-ink3" />
-          <input
-            type="search"
-            value={q}
-            onChange={(e) => search(e.target.value)}
-            placeholder="Search by title, verse or tag"
-            aria-label="Search sermon notes"
-            className="field !px-0 !text-base [&::-webkit-search-cancel-button]:hidden"
-          />
-          {q && (
-            <button onClick={() => search('')} className="btn-ghost !rounded-full !p-2" aria-label="Clear search">
-              <X size={17} />
-            </button>
+        <div className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-3 sm:mt-10">
+          <label className="well flex w-full max-w-xl items-center gap-3 pl-4 pr-2 sm:flex-1">
+            <Search size={18} className="shrink-0 text-ink3" />
+            <input
+              type="search"
+              value={q}
+              onChange={(e) => search(e.target.value)}
+              placeholder="Search by title, verse or tag"
+              aria-label="Search sermon notes"
+              className="field !px-0 !text-base [&::-webkit-search-cancel-button]:hidden"
+            />
+            {q && (
+              <button
+                onClick={() => search("")}
+                className="btn-ghost !rounded-full !p-2"
+                aria-label="Clear search"
+              >
+                <X size={17} />
+              </button>
+            )}
+          </label>
+
+          {languages.length > 0 && (
+            <Segmented
+              label="Language"
+              value={lang}
+              onChange={(value) => set({ lang: value })}
+              options={[
+                { value: "", label: "All" },
+                ...languages.map((l) => ({ value: l, label: l })),
+              ]}
+            />
           )}
-        </label>
+        </div>
 
         {years.length > 0 && (
           <div className="mt-5 space-y-1.5 text-[15px] font-medium sm:mt-6">
             <div className={ROW}>
-              <Choice active={!y} onClick={() => set({ y: '', m: '' })}>
+              <Choice active={!y} onClick={() => set({ y: "", m: "" })}>
                 All years
               </Choice>
               {years.map((year) => (
-                <Choice key={year} active={year === y} onClick={() => set({ y: year === y ? '' : year, m: '' })}>
+                <Choice
+                  key={year}
+                  active={year === y}
+                  onClick={() => set({ y: year === y ? "" : year, m: "" })}
+                >
                   {year}
                 </Choice>
               ))}
@@ -125,25 +184,16 @@ export default function NotesList() {
 
             {y && months.length > 0 && (
               <div className={ROW}>
-                <Choice active={!m} onClick={() => set({ m: '' })}>
+                <Choice active={!m} onClick={() => set({ m: "" })}>
                   All months
                 </Choice>
                 {months.map((month) => (
-                  <Choice key={month} active={month === m} onClick={() => set({ m: month === m ? '' : month })}>
+                  <Choice
+                    key={month}
+                    active={month === m}
+                    onClick={() => set({ m: month === m ? "" : month })}
+                  >
                     {MONTHS[month - 1]}
-                  </Choice>
-                ))}
-              </div>
-            )}
-
-            {languages.length > 0 && (
-              <div className={ROW}>
-                <Choice active={!lang} onClick={() => set({ lang: '' })}>
-                  All languages
-                </Choice>
-                {languages.map((l) => (
-                  <Choice key={l} active={l === lang} onClick={() => set({ lang: l === lang ? '' : l })}>
-                    {l}
                   </Choice>
                 ))}
               </div>
@@ -152,7 +202,11 @@ export default function NotesList() {
             {shownTags.length > 0 && (
               <div className={`${ROW} !gap-x-4 font-normal`}>
                 {shownTags.map((t) => (
-                  <Choice key={t} active={t === tag} onClick={() => set({ tag: t === tag ? '' : t })}>
+                  <Choice
+                    key={t}
+                    active={t === tag}
+                    onClick={() => set({ tag: t === tag ? "" : t })}
+                  >
                     #{t}
                   </Choice>
                 ))}
@@ -165,7 +219,10 @@ export default function NotesList() {
       {loading && (
         <div className={GRID}>
           {[0, 1, 2].map((i) => (
-            <div key={i} className="surface flex gap-3.5 overflow-hidden p-3 sm:flex-col sm:gap-0 sm:p-0">
+            <div
+              key={i}
+              className="surface flex gap-3.5 overflow-hidden p-3 sm:flex-col sm:gap-0 sm:p-0"
+            >
               <div className="skeleton aspect-[4/3] w-[108px] shrink-0 sm:aspect-video sm:w-full sm:!rounded-none" />
               <div className="flex-1 space-y-3 py-1 sm:p-5">
                 <div className="skeleton h-3 w-24" />
@@ -179,7 +236,9 @@ export default function NotesList() {
 
       {error && (
         <div>
-          <p className="font-serif text-2xl text-ink">The notes could not be loaded</p>
+          <p className="font-serif text-2xl text-ink">
+            The notes could not be loaded
+          </p>
           <p className="mt-2 text-ink2">{error}</p>
         </div>
       )}
@@ -188,33 +247,40 @@ export default function NotesList() {
         <>
           {filtered && (
             <p className="mb-5 text-[15px] text-ink2">
-              {matches.length} {matches.length === 1 ? 'note' : 'notes'}
+              {matches.length} {matches.length === 1 ? "note" : "notes"}
               {tag && (
                 <>
-                  {' '}tagged <span className="font-semibold text-ink">#{tag}</span>
+                  {" "}
+                  tagged <span className="font-semibold text-ink">#{tag}</span>
                 </>
               )}
               {y && (
                 <>
-                  {' '}from{' '}
+                  {" "}
+                  from{" "}
                   <span className="font-semibold text-ink">
-                    {m ? `${MONTHS[m - 1]} ` : ''}
+                    {m ? `${MONTHS[m - 1]} ` : ""}
                     {y}
                   </span>
                 </>
               )}
               {lang && (
                 <>
-                  {' '}in <span className="font-semibold text-ink">{lang}</span>
+                  {" "}
+                  in <span className="font-semibold text-ink">{lang}</span>
                 </>
               )}
               {q && (
                 <>
-                  {' '}matching <span className="font-semibold text-ink">“{q}”</span>
+                  {" "}
+                  matching <span className="font-semibold text-ink">“{q}”</span>
                 </>
               )}
               <span className="mx-2 text-ink3">·</span>
-              <button onClick={clearAll} className="textlink !text-accent hover:underline">
+              <button
+                onClick={clearAll}
+                className="textlink !text-accent hover:underline"
+              >
                 Show all notes
               </button>
             </p>
@@ -222,9 +288,13 @@ export default function NotesList() {
 
           {matches.length === 0 && (
             <div>
-              <p className="font-serif text-2xl text-ink">{notes.length ? 'No notes match' : 'No notes yet'}</p>
+              <p className="font-serif text-2xl text-ink">
+                {notes.length ? "No notes match" : "No notes yet"}
+              </p>
               <p className="mt-2 text-ink2">
-                {notes.length ? 'Try a different search, or clear the filters.' : 'Notes will appear here once they are published.'}
+                {notes.length
+                  ? "Try a different search, or clear the filters."
+                  : "Notes will appear here once they are published."}
               </p>
             </div>
           )}
@@ -233,7 +303,12 @@ export default function NotesList() {
 
           <div className={GRID}>
             {rest.map((note) => (
-              <NoteCard key={note.id} note={note} activeTag={tag} onTag={(t) => set({ tag: t === tag ? '' : t })} />
+              <NoteCard
+                key={note.id}
+                note={note}
+                activeTag={tag}
+                onTag={(t) => set({ tag: t === tag ? "" : t })}
+              />
             ))}
           </div>
         </>
